@@ -4,12 +4,12 @@ angular.module('demoApp').controller('DemoController', function($scope) {
 
   function generateRandomData(len) {
     for (var i = 0; i < len; i++) {
-      var random1 = Math.floor(Math.random() * 400);
-      var random2 = Math.floor(Math.random() * 400);
+      var randomWidth = Math.floor(Math.random() * 680);
+      var randomHeight = Math.floor(Math.random() * 400);
 
       var point = {
-        x: random1,
-        y: random2
+        x: randomWidth,
+        y: randomHeight
       };
       ctrl.data.push(point);
     }

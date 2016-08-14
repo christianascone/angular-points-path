@@ -7,7 +7,13 @@ angular.module('angular-points-path')
 
     ctrl.data = ctrl.pointsData;
 
-    ctrl.addData = function(point) {
+    /**
+     * Adds a point to data list and draw it
+     * on canvas
+     * 
+     * @param {Point data}
+     */
+    ctrl.addPoint = function(point) {
       var x = point.x;
       var y = point.y;
       var value = point.value;
@@ -26,9 +32,15 @@ angular.module('angular-points-path')
       x = '';
       y = '';
       value = '';
-      draw(ctrl.data);
+      drawData(ctrl.data);
     };
 
+    /**
+     * Remove a point from list and canvas
+     * 
+     * @param  {Point to remove}
+     * @return {void}
+     */
     ctrl.removePoint = function(point) {
       console.log(point);
       for (var i = 0; i < ctrl.data.length; i++) {
@@ -38,21 +50,34 @@ angular.module('angular-points-path')
         }
       }
 
-      ctrl.context.clearRect(0, 0, 600, 400);
-      draw(ctrl.data);
+      ctrl.context.clearRect(0, 0, ctrl.canvas.width, ctrl.canvas.height);
+      drawData(ctrl.data);
       console.log(ctrl.data);
     }
 
-    function draw(data) {
+    /**
+     * Draws a list of points and connect them with line
+     * 
+     * @param  {List of points}
+     * @return {void}
+     */
+    function drawData(data) {
       for (var i = 0; i < data.length; i++) {
-        drawDot(data[i]);
+        drawDotOnCanvas(data[i]);
         if (i > 0) {
-          drawLine(data[i], data[i - 1]);
+          drawLineOnCanvas(data[i], data[i - 1]);
         }
       }
     }
 
-    function drawDot(data) {
+    /**
+     * Draws a dot with given data.
+     * The argument data must be {x: xPos, y: yPos, value: radius}
+     * 
+     * @param  {Point data for drawing}
+     * @return {void}
+     */
+    function drawDotOnCanvas(data) {
       ctrl.context.beginPath();
       ctrl.context.arc(data.x, data.y, data.value, 0, 2 * Math.PI, false);
       ctrl.context.fillStyle = "#ccddff";
@@ -62,7 +87,14 @@ angular.module('angular-points-path')
       ctrl.context.stroke();
     }
 
-    function drawLine(data1, data2) {
+    /**
+     * Draws a line between two points, passed as arguments
+     * 
+     * @param  {First point}
+     * @param  {Second point}
+     * @return {void}
+     */
+    function drawLineOnCanvas(data1, data2) {
       ctrl.context.beginPath();
       ctrl.context.moveTo(data1.x, data1.y);
       ctrl.context.lineTo(data2.x, data2.y);
@@ -70,17 +102,16 @@ angular.module('angular-points-path')
       ctrl.context.stroke();
     }
 
-    ctrl.init = function() {
-      for (var i = 0; i < ctrl.data.length; i++) {
-        var value = ctrl.data[i].value;
-        if (!value) {
-          value = 10;
-        }
-        ctrl.data[i].value = value;
-      }
-      ctrl.canvas = document.getElementById('angular-points-path_canvas');
-      ctrl.context = ctrl.canvas.getContext('2d');
-      // setup
+    /**
+     * Setup the canvas size.
+     * It checks the parent element size for the
+     * canvas size.
+     * Whether width and height are in directive binding,
+     * they override them.
+     * 
+     * @return {void}
+     */
+    ctrl.setupSize = function() {
       ctrl.container = ctrl.canvas.parentElement.parentElement;
 
       // Set canvas style
@@ -89,6 +120,7 @@ angular.module('angular-points-path')
       ctrl.canvas.width = width;
       ctrl.canvas.height = height;
 
+      // Container size used for canvas
       if (ctrl.container.style.width && ctrl.container.style.height) {
         ctrl.canvas.width = ctrl.container.style.width.replace("px", "");
         ctrl.canvas.height = ctrl.container.style.height.replace("px", "");
@@ -98,9 +130,24 @@ angular.module('angular-points-path')
         ctrl.canvas.width = ctrl.width;
         ctrl.canvas.height = ctrl.height;
       }
+    }
+
+    ctrl.init = function() {
+      // If not available, the default value (point radius) is 10
+      for (var i = 0; i < ctrl.data.length; i++) {
+        var value = ctrl.data[i].value;
+        if (!value) {
+          value = 10;
+        }
+        ctrl.data[i].value = value;
+      }
+      ctrl.canvas = document.getElementById('angular-points-path_canvas');
+      ctrl.context = ctrl.canvas.getContext('2d');
+      ctrl.setupSize();
+
       ctrl.context.globalAlpha = 1.0;
       ctrl.context.beginPath();
-      draw(ctrl.data);
+      drawData(ctrl.data);
     }
 
     ctrl.init();
