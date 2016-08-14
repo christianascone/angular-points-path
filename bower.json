@@ -1,0 +1,29 @@
+{
+  "name": "angular-points-path",
+  "description": "",
+  "license": "MIT",
+  "version": "0.0.1",
+  "homepage": "https://github.com/christianascone/angular-points-path",
+  "authors": [
+    "Christian Ascone <ascone.christian@gmail.com>"
+  ],
+  "main": [
+    "dist/angular-points-path.js"],
+  "keywords": [
+    "points",
+    "path",
+    "angular",
+    "directive"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/christianascone/angular-points-path.git"
+  },
+  "ignore": [
+    "**/.*",
+    "bower_components"
+  ],
+  "dependencies": {
+    "angular": ">=1.3 <2.0"
+  }
+}

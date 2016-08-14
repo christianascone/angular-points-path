@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta name="theme-color" content="#395D86">
+		<link rel="icon" sizes="192x192" href="img/logo.png">
+		<link rel="icon" type="image/png" href="img/logo.png">
+		<!-- Fonts -->
+		<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+		<link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+		<title>Demo Angular Js Directive</title>
+		
+		<!-- AngularJS -->
+		<script src="../bower_components/angular/angular.min.js"></script>
+
+		<script src="../src/angular-points-path.js"></script>
+
+		<!-- Declaring Application -->
+		<script src="app.js"></script>
+
+		<script src="DemoController.js"></script>
+
+	</head>
+	<body layout="column" class="app-content">
+		
+		<div layout="row" flex class="main-content" ng-app="demoApp">
+			<div ng-controller="DemoController as demoCtrl" style="width: 680px; height: 400px;">
+				<angular-points-path points-data="demoCtrl.data"></angular-points-path>
+			</div>
+		</div>
+		<!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+		<script src="https://getbootstrap.com/assets/js/ie10-viewport-bug-workaround.js"></script>
+	</body>
+</html>
