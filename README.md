@@ -1,6 +1,6 @@
 angular-points-path
 ==================
-Angular JS Directive for canvas drawing with a list of points and 
+Angular JS Directive for canvas drawing with a list of points
 
 [![GitHub release](https://img.shields.io/github/release/christianascone/angular-points-path.svg?maxAge=2592000)](https://github.com/christianascone/angular-points-path/releases/latest)
 [![Bower version](https://badge.fury.io/bo/angular-points-path.svg)](https://badge.fury.io/bo/angular-points-path)
