@@ -1,3 +1,14 @@
+window.requestAnimFrame = (function() {
+  return window.requestAnimationFrame ||
+    window.webkitRequestAnimationFrame ||
+    window.mozRequestAnimationFrame ||
+    window.oRequestAnimationFrame ||
+    window.msRequestAnimationFrame ||
+    function( /* function */ callback, /* DOMElement */ element) {
+      window.setTimeout(callback, 1000 / 60);
+    };
+})();
+
 angular.module('angular-points-path', []);
 
 angular.module('angular-points-path')
@@ -6,6 +17,102 @@ angular.module('angular-points-path')
     ctrl.container = {};
 
     ctrl.data = ctrl.pointsData;
+    ctrl.waypoints = [];
+
+    var t = 0;
+    var tLine = 0;
+    var tPoint = 0;
+
+    var fps = 10;
+    $scope.autoUpdateTimer = 30;
+
+    function animate() {
+      setTimeout(function() {
+        var vertices = ctrl.data;
+        var waypoints = ctrl.waypoints;
+        // Continues the animation 'til I have
+        // lines to animate
+        if (tLine < vertices.length) {
+          // tLine must be > 0 because the array starts from 1
+          // tPoint must be > 0 because I have to draw between the "i-1" and "i" points
+          if (tLine > 0 && tPoint > 0) {
+            var waypoint1 = waypoints[tLine][tPoint];
+            var waypoint2 = waypoints[tLine][tPoint - 1];
+            ctrl.context.beginPath();
+            ctrl.context.moveTo(waypoint1.x, waypoint1.y);
+            ctrl.context.lineTo(waypoint2.x, waypoint2.y);
+            ctrl.context.strokeStyle = "red";
+            ctrl.context.stroke();
+          }
+          tPoint++;
+
+          // Checks the end conditions
+          if (tLine <= 0 || tPoint >= waypoints[tLine].length) {
+            /*
+            First animation type:
+            When the animation of one red line is done, a new black line
+            is drawn to overwrite the animation points
+             */
+            if (tLine > 0 && animationType == 0) {
+              ctrl.context.beginPath();
+              var data1 = waypoints[tLine][0];
+              var data2 = waypoints[tLine][waypoints[tLine].length-1];
+              ctrl.context.moveTo(data1.x, data1.y);
+              ctrl.context.lineTo(data2.x, data2.y);
+              ctrl.context.strokeStyle = "black";
+              ctrl.context.stroke();
+            }
+            // Following line and reset point
+            tLine++;
+            tPoint = 0;
+          }
+        }
+        requestAnimFrame(animate);
+      }, 1000 / fps);
+    }
+
+    /**
+     * Calculates the waypoints for the animation.
+     * Every line (in order to be animated) must be divided
+     * into single points to draw.
+     *  
+     * @param  {array} vertices List of vertices of every line
+     */
+    ctrl.calcWaypoints = function(vertices) {
+      var vertices = ctrl.data;
+      for (var i = 1; i < vertices.length; i++) {
+        ctrl.waypoints[i] = [];
+        var pt0 = vertices[i - 1];
+        var pt1 = vertices[i];
+        var dx = pt1.x - pt0.x;
+        var dy = pt1.y - pt0.y;
+        for (var j = 0; j < 100; j++) {
+          var x = pt0.x + dx * j / 100;
+          var y = pt0.y + dy * j / 100;
+          ctrl.waypoints[i].push({
+            x: x,
+            y: y
+          });
+        }
+      }
+    }
+
+
+    /**
+     * Draws a line between two points, passed as arguments
+     * 
+     * @param  {First point}
+     * @param  {Second point}
+     * @return {void}
+     */
+    ctrl.drawLineOnCanvas = function(data1, data2) {
+      //http://jsfiddle.net/m1erickson/7faRQ/
+      ctrl.context.beginPath();
+      ctrl.context.moveTo(data1.x, data1.y);
+      ctrl.context.lineTo(data2.x, data2.y);
+      ctrl.context.strokeStyle = "black";
+      ctrl.context.stroke();
+    }
 
     /**
      * Adds a point to data list and draw it
@@ -78,6 +185,7 @@ angular.module('angular-points-path')
      * @return {void}
      */
     function drawDotOnCanvas(data) {
+      requestAnimationFrame(animate);
       ctrl.context.beginPath();
       ctrl.context.arc(data.x, data.y, data.value, 0, 2 * Math.PI, false);
       ctrl.context.fillStyle = "#ccddff";
@@ -95,6 +203,7 @@ angular.module('angular-points-path')
      * @return {void}
      */
     function drawLineOnCanvas(data1, data2) {
+      //http://jsfiddle.net/m1erickson/7faRQ/
       ctrl.context.beginPath();
       ctrl.context.moveTo(data1.x, data1.y);
       ctrl.context.lineTo(data2.x, data2.y);
@@ -141,6 +250,12 @@ angular.module('angular-points-path')
         }
         ctrl.data[i].value = value;
       }
+
+      // Collapse check
+      if (ctrl.collapse) {
+
+      }
+
       ctrl.canvas = document.getElementById('angular-points-path_canvas');
       ctrl.context = ctrl.canvas.getContext('2d');
       ctrl.setupSize();
@@ -148,6 +263,16 @@ angular.module('angular-points-path')
       ctrl.context.globalAlpha = 1.0;
       ctrl.context.beginPath();
       drawData(ctrl.data);
+
+      // Check animation
+      if (ctrl.animate) {
+        // Calculare the waypoints for the animation
+        ctrl.calcWaypoints();
+        if(!ctrl.animationType){
+          ctrl.animationType = 0;
+        }
+        animate();
+      }
     }
 
     ctrl.init();
@@ -159,7 +284,17 @@ angular.module('angular-points-path')
       bindToController: {
         'pointsData': '=',
         'width': '=',
-        'height': '='
+        'height': '=',
+        'animationType': '=',
+      },
+      link: function(scope, element, attrs, ctrl) {
+        if (angular.isDefined(attrs.collapse)) {
+          ctrl.collapse = true;
+        }
+        if (angular.isDefined(attrs.animate)) {
+          ctrl.animate = true;
+        }
+        ctrl.init();
       },
       template: '<canvas id="angular-points-path_canvas" style="border: 1px gray solid; float: left"></canvas>',
       controller: 'angularPointsPathController',
