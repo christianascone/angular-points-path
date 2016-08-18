@@ -19,8 +19,6 @@ angular.module('angular-points-path')
     ctrl.data = ctrl.pointsData;
     ctrl.waypoints = [];
 
-    var animationType = 0;
-
     var t = 0;
     var tLine = 0;
     var tPoint = 0;
@@ -32,8 +30,11 @@ angular.module('angular-points-path')
       setTimeout(function() {
         var vertices = ctrl.data;
         var waypoints = ctrl.waypoints;
+        // Continues the animation 'til I have
+        // lines to animate
         if (tLine < vertices.length) {
-
+          // tLine must be > 0 because the array starts from 1
+          // tPoint must be > 0 because I have to draw between the "i-1" and "i" points
           if (tLine > 0 && tPoint > 0) {
             var waypoint1 = waypoints[tLine][tPoint];
             var waypoint2 = waypoints[tLine][tPoint - 1];
@@ -44,7 +45,14 @@ angular.module('angular-points-path')
             ctrl.context.stroke();
           }
           tPoint++;
+
+          // Checks the end conditions
           if (tLine <= 0 || tPoint >= waypoints[tLine].length) {
+            /*
+            First animation type:
+            When the animation of one red line is done, a new black line
+            is drawn to overwrite the animation points
+             */
             if (tLine > 0 && animationType == 0) {
               ctrl.context.beginPath();
               var data1 = waypoints[tLine][0];
@@ -63,6 +71,13 @@ angular.module('angular-points-path')
       }, 1000 / fps);
     }
 
+    /**
+     * Calculates the waypoints for the animation.
+     * Every line (in order to be animated) must be divided
+     * into single points to draw.
+     *  
+     * @param  {array} vertices List of vertices of every line
+     */
     ctrl.calcWaypoints = function(vertices) {
       var vertices = ctrl.data;
       for (var i = 1; i < vertices.length; i++) {
@@ -249,8 +264,13 @@ angular.module('angular-points-path')
       ctrl.context.beginPath();
       drawData(ctrl.data);
 
+      // Check animation
       if (ctrl.animate) {
+        // Calculare the waypoints for the animation
         ctrl.calcWaypoints();
+        if(!ctrl.animationType){
+          ctrl.animationType = 0;
+        }
         animate();
       }
     }
@@ -264,7 +284,8 @@ angular.module('angular-points-path')
       bindToController: {
         'pointsData': '=',
         'width': '=',
-        'height': '='
+        'height': '=',
+        'animationType': '=',
       },
       link: function(scope, element, attrs, ctrl) {
         if (angular.isDefined(attrs.collapse)) {
