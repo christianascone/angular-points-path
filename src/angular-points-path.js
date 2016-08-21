@@ -179,7 +179,7 @@ angular.module('angular-points-path')
     function drawData(data) {
       for (var i = 0; i < data.length; i++) {
         drawDotOnCanvas(data[i]);
-        if (i > 0) {
+        if (!ctrl.hidePath && i > 0) {
           drawLineOnCanvas(data[i], data[i - 1]);
         }
       }
@@ -300,6 +300,9 @@ angular.module('angular-points-path')
         }
         if (angular.isDefined(attrs.animate)) {
           ctrl.animate = true;
+        }
+        if (angular.isDefined(attrs.hidePath)) {
+          ctrl.hidePath = true;
         }
         ctrl.init();
       },
