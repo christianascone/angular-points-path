@@ -22,11 +22,19 @@ angular.module('angular-points-path')
     var t = 0;
     var tLine = 0;
     var tPoint = 0;
+    var animationType = ctrl.animationType;
 
-    var fps = 10;
-    $scope.autoUpdateTimer = 30;
+    // Animation speed
+    var fps = ctrl.fps;
+    // 10 is the default value
+    if(!fps){
+      fps = 10;
+    }
 
     function animate() {
+      if(!ctrl.animate){
+        return;
+      }
       setTimeout(function() {
         var vertices = ctrl.data;
         var waypoints = ctrl.waypoints;
@@ -56,7 +64,7 @@ angular.module('angular-points-path')
             if (tLine > 0 && animationType == 0) {
               ctrl.context.beginPath();
               var data1 = waypoints[tLine][0];
-              var data2 = waypoints[tLine][waypoints[tLine].length-1];
+              var data2 = waypoints[tLine][waypoints[tLine].length - 1];
               ctrl.context.moveTo(data1.x, data1.y);
               ctrl.context.lineTo(data2.x, data2.y);
               ctrl.context.strokeStyle = "black";
@@ -86,9 +94,9 @@ angular.module('angular-points-path')
         var pt1 = vertices[i];
         var dx = pt1.x - pt0.x;
         var dy = pt1.y - pt0.y;
-        for (var j = 0; j < 100; j++) {
-          var x = pt0.x + dx * j / 100;
-          var y = pt0.y + dy * j / 100;
+        for (var j = 0; j < 200; j++) {
+          var x = pt0.x + dx * j / 200;
+          var y = pt0.y + dy * j / 200;
           ctrl.waypoints[i].push({
             x: x,
             y: y
@@ -171,7 +179,7 @@ angular.module('angular-points-path')
     function drawData(data) {
       for (var i = 0; i < data.length; i++) {
         drawDotOnCanvas(data[i]);
-        if (i > 0) {
+        if (!ctrl.hidePath && i > 0) {
           drawLineOnCanvas(data[i], data[i - 1]);
         }
       }
@@ -185,7 +193,6 @@ angular.module('angular-points-path')
      * @return {void}
      */
     function drawDotOnCanvas(data) {
-      requestAnimationFrame(animate);
       ctrl.context.beginPath();
       ctrl.context.arc(data.x, data.y, data.value, 0, 2 * Math.PI, false);
       ctrl.context.fillStyle = "#ccddff";
@@ -256,7 +263,6 @@ angular.module('angular-points-path')
 
       }
 
-      ctrl.canvas = document.getElementById('angular-points-path_canvas');
       ctrl.context = ctrl.canvas.getContext('2d');
       ctrl.setupSize();
 
@@ -268,14 +274,13 @@ angular.module('angular-points-path')
       if (ctrl.animate) {
         // Calculare the waypoints for the animation
         ctrl.calcWaypoints();
-        if(!ctrl.animationType){
-          ctrl.animationType = 0;
+        if (!animationType) {
+          animationType = 0;
         }
         animate();
       }
     }
 
-    ctrl.init();
 
   })
   .directive('angularPointsPath', function() {
@@ -286,13 +291,18 @@ angular.module('angular-points-path')
         'width': '=',
         'height': '=',
         'animationType': '=',
+        'fps': '@',
       },
       link: function(scope, element, attrs, ctrl) {
+        ctrl.canvas = element[0].firstChild;
         if (angular.isDefined(attrs.collapse)) {
           ctrl.collapse = true;
         }
         if (angular.isDefined(attrs.animate)) {
           ctrl.animate = true;
+        }
+        if (angular.isDefined(attrs.hidePath)) {
+          ctrl.hidePath = true;
         }
         ctrl.init();
       },

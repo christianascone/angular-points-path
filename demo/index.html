@@ -25,10 +25,32 @@
 	</head>
 	<body layout="column" class="app-content">
 		
-		<div layout="row" flex class="main-content" ng-app="demoApp">
-			<div ng-controller="DemoController as demoCtrl" style="width: 680px; height: 400px;">
-				<angular-points-path animate points-data="demoCtrl.data"></angular-points-path>
+		<div layout="row" flex class="main-content" ng-app="demoApp" ng-controller="DemoController as demoCtrl">
+			<h4>Animation - 500 fps - default animation</h4>
+			<div style="width: 680px; height: 400px;">
+				<angular-points-path animate points-data="demoCtrl.data" fps="500"></angular-points-path>
 			</div>
+
+			<h4>Animation - default fps - animation 0</h4>
+			<div style="width: 680px; height: 400px;">
+				<angular-points-path animate animation-type="0" points-data="demoCtrl.data"></angular-points-path>
+			</div>
+
+			<h4>No Animation</h4>
+			<div style="width: 680px; height: 400px;">
+				<angular-points-path points-data="demoCtrl.data"></angular-points-path>
+			</div>
+
+			<h4>Hide Path - Animation</h4>
+			<div style="width: 680px; height: 400px;">
+				<angular-points-path points-data="demoCtrl.data" hide-path animate></angular-points-path>
+			</div>
+
+			<h4>Hide Path - No Animation</h4>
+			<div style="width: 680px; height: 400px;">
+				<angular-points-path points-data="demoCtrl.data" hide-path></angular-points-path>
+			</div>
+
 		</div>
 		<!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
 		<script src="https://getbootstrap.com/assets/js/ie10-viewport-bug-workaround.js"></script>
